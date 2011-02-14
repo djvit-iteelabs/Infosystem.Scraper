@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quartz xmlns="http://quartznet.sourceforge.net/JobSchedulingData"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ 				version="1.0"
+				overwrite-existing-jobs="true">
+  <job>    
+    <job-detail>
+      <name>jobName1</name>
+      <group>jobGroup1</group>
+      <description>jobDesciption1</description>
+      <job-type>JobAssembly.SuperJob, JobAssembly</job-type>
+      <volatile>false</volatile>
+      <durable>true</durable>
+      <recover>false</recover>
+    </job-detail>
+
+    <!--  run every 5 minutes -->
+    <trigger>
+      <cron>
+        <name>institutionalItemIndexer</name>
+        <group>DEFAULT</group>
+        <job-name>InstitutionalItemIndexer</job-name>
+        <job-group>DEFAULT</job-group>
+        <cron-expression>0 0/1 * * * ?</cron-expression>
+      </cron>
+    </trigger>
+  </job>
+</quartz>
+
