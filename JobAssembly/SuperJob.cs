@@ -9,7 +9,7 @@ using Common.Logging;
 
 namespace JobAssembly
 {
-    public class SuperJob: IJob
+    public class SuperJob: IStatefulJob
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(SuperJob));
 
