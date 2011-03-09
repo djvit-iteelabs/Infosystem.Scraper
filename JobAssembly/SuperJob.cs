@@ -13,7 +13,7 @@ namespace JobAssembly
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(SuperJob));
 
-        #region IJob Members
+        #region IStatefulJob Members
 
         public void Execute(JobExecutionContext context)
         {
