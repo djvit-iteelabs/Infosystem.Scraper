@@ -1,7 +1,5 @@
 using System.ServiceProcess;
-
 using Common.Logging;
-
 using Quartz.Server.Core;
 
 namespace Quartz.Server.Service

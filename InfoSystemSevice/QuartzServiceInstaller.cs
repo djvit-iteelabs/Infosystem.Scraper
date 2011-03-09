@@ -108,21 +108,27 @@ namespace Quartz.Server.Service
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.serviceProcessInstaller = new System.ServiceProcess.ServiceProcessInstaller();
-			this.serviceInstaller = new System.ServiceProcess.ServiceInstaller();
-			// 
-			// serviceProcessInstaller
-			// 
-			this.serviceProcessInstaller.Password = null;
-			this.serviceProcessInstaller.Username = null;
-			// 
-			// ProjectInstaller
-			// 
-			this.Installers.AddRange(new System.Configuration.Install.Installer[]
-										 {
-											 this.serviceProcessInstaller,
-											 this.serviceInstaller
-										 });
+            this.serviceProcessInstaller = new System.ServiceProcess.ServiceProcessInstaller();
+            this.serviceInstaller = new System.ServiceProcess.ServiceInstaller();
+            // 
+            // serviceProcessInstaller
+            // 
+            this.serviceProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
+            this.serviceProcessInstaller.Password = null;
+            this.serviceProcessInstaller.Username = null;
+            // 
+            // serviceInstaller
+            // 
+            this.serviceInstaller.Description = "Info System Scraper Service host";
+            this.serviceInstaller.DisplayName = "Info System Scraper Service";
+            this.serviceInstaller.ServiceName = "InfoSystemScraperService";
+            // 
+            // QuartzServiceInstaller
+            // 
+            this.Installers.AddRange(new System.Configuration.Install.Installer[] {
+            this.serviceProcessInstaller,
+            this.serviceInstaller});
+
 		}
 
 		#endregion

@@ -33,6 +33,7 @@ namespace Quartz
         public QuartzThread()
         {
             thread = new Thread(new ThreadStart(Run));
+            thread.SetApartmentState(ApartmentState.STA);
         }
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace Quartz
         public QuartzThread(string name)
         {
             thread = new Thread(new ThreadStart(Run));
+            thread.SetApartmentState(ApartmentState.STA);
             Name = name;
         }
 
@@ -52,6 +54,7 @@ namespace Quartz
         public QuartzThread(ThreadStart Start)
         {
             thread = new Thread(Start);
+            thread.SetApartmentState(ApartmentState.STA);
         }
 
         /// <summary>
@@ -62,6 +65,7 @@ namespace Quartz
         public QuartzThread(ThreadStart Start, string name)
         {
             thread = new Thread(Start);
+            thread.SetApartmentState(ApartmentState.STA);
             Name = name;
         }
 
