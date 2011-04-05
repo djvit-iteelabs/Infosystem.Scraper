@@ -18,6 +18,7 @@ namespace JobAssembly
         private static string urlHotels = JobUtils.GetConfigValue("urlHotels");
         private static string urlRestaurants = JobUtils.GetConfigValue("urlRestaurants");
         private static string urlWeather = JobUtils.GetConfigValue("urlWeather");
+        private static string urlDTS = JobUtils.GetConfigValue("urlDTS");
 
         #region IStatefulJob implementation 
 
@@ -27,28 +28,46 @@ namespace JobAssembly
         /// <param name="context"></param>
         public void Execute(JobExecutionContext context)
         {
-            // Scrape News
-            GetNews(urlNews);
-            Thread.Sleep(30000);
+            try
+            {
+                // Scrape News
+                GetNews(urlNews, logger);
+                Thread.Sleep(30000);
+                logger.Info((object)"News scraped");
 
-            // Scrape Events
-            GetEvents(urlEvents);
-            Thread.Sleep(30000);
+                // Scrape Events
+                GetEvents(urlEvents, logger);
+                Thread.Sleep(30000);
+                logger.Info((object)"Events scraped");
 
-            // Scrape Tourism information
-            GetTourism(urlTourism);
-            Thread.Sleep(30000);
+                // Scrape Tourism information
+                GetTourism(urlTourism, logger);
+                Thread.Sleep(30000);
+                logger.Info((object)"Tourism scraped");
 
-            // Scrape Hotels
-            GetHotels(urlHotels);
-            Thread.Sleep(30000);
+                // Scrape Hotels
+                GetHotels(urlHotels, logger);
+                Thread.Sleep(30000);
+                logger.Info((object)"Hotels scraped");
 
-            // Scrape Restaurants
-            GetRestaurants(urlRestaurants);
-            Thread.Sleep(30000);
+                // Scrape Restaurants
+                GetRestaurants(urlRestaurants, logger);
+                Thread.Sleep(30000);
+                logger.Info((object)"Restaurants scraped");
 
-            // Scrape Weather information
-            GetWeather(urlWeather);
+                // Scrape Weather information
+                GetWeather(urlWeather, logger);
+                Thread.Sleep(30000);
+                logger.Info((object)"Weather scraped");
+
+                // Get Day Time Service information
+                GetDTS(urlDTS, logger);
+                logger.Info((object)"Date Time service scraped");
+            }
+            catch (Exception e)
+            {
+                logger.Error((object)e);
+            }
         }
 
         #endregion
@@ -59,7 +78,7 @@ namespace JobAssembly
         /// Retrieves and saves News information
         /// </summary>
         /// <param name="url"></param>
-        public void GetNews(string newsUrl)
+        public void GetNews(string newsUrl, ILog logger)
         {
             HTMLDocument document = JobUtils.LoadDocument(newsUrl);
 
@@ -69,7 +88,7 @@ namespace JobAssembly
 
             // Find original content placeholder
             IHTMLElement contentBox = document.getElementById("contentboxsub");
-
+            
             // Iterate over all <TR>'s
             foreach (IHTMLElement el in (IHTMLElementCollection)contentBox.all)
             {
@@ -92,8 +111,8 @@ namespace JobAssembly
                         strDetailID = strDetailUrl.Substring(infoPos, strDetailUrl.IndexOf("&", infoPos) - infoPos);
 
                         // Save Details content
-                        strDetailUrl = strDetailUrl.Replace("about:", JobUtils.GetConfigValue("sourceWebRoot"));
-                        JobUtils.SaveDetailsContent(strDetailUrl, strDetailID + ".data");
+                        strDetailUrl = strDetailUrl.Replace("about:blank", JobUtils.GetConfigValue("sourceWebRoot"));
+                        JobUtils.SaveDetailsContent(strDetailUrl, strDetailID + ".data", logger);
                     }
 
                     if ((title == null) && (date == null)) continue;
@@ -118,23 +137,23 @@ namespace JobAssembly
             strRssContent = strRssContent.Replace('"', '\'');
             strRssContent = "RSSData.Content = \"" + strRssContent + "\";";
 
-            JobUtils.SaveData(strRssContent, "news.rss");
+            JobUtils.SaveData(strRssContent, "news.rss", logger);
         }
 
         /// <summary>
         /// Retrieves and saves Weather information
         /// </summary>
         /// <param name="urlWeather"></param>
-        private void GetWeather(string weatherUrl)
+        private void GetWeather(string weatherUrl, ILog logger)
         {
-            JobUtils.SaveEventsDetailsContent(weatherUrl, "weather.data");
+            JobUtils.SaveEventsDetailsContent(weatherUrl, "weather.data", logger);
         }
 
         /// <summary>
         /// Retrieves and saves Restaurants information
         /// </summary>
         /// <param name="urlRestaurants"></param>
-        private void GetRestaurants(string restaurantsUrl)
+        private void GetRestaurants(string restaurantsUrl, ILog logger)
         {
             HTMLDocument document = JobUtils.LoadDocument(restaurantsUrl);
 
@@ -172,7 +191,7 @@ namespace JobAssembly
                     if ((title == null) || (tel == null)) continue;
                     // Save Details content
                     strDetailUrl = strDetailUrl.Replace("about:blank", JobUtils.GetConfigValue("urlRestaurants"));
-                    JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data");
+                    JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data", logger);
 
                     strRssItem = rssItem.Replace("#####2", strDetailUrl);
                     strRssItem = strRssItem.Replace("#####4", strTitle);
@@ -193,14 +212,14 @@ namespace JobAssembly
             strRssContent = strRssContent.Replace('"', '\'');
             strRssContent = "RSSData.Content = \"" + strRssContent + "\";";
 
-            JobUtils.SaveData(strRssContent, "restaurants.rss");
+            JobUtils.SaveData(strRssContent, "restaurants.rss", logger);
         }
 
         /// <summary>
         /// Retrieves and saves Hotels information
         /// </summary>
         /// <param name="urlHotels"></param>
-        private void GetHotels(string hotelsUrl)
+        private void GetHotels(string hotelsUrl, ILog logger)
         {
             HTMLDocument document = JobUtils.LoadDocument(hotelsUrl);
 
@@ -238,7 +257,7 @@ namespace JobAssembly
                     if ((title == null) || (tel == null)) continue;
                     // Save Details content
                     strDetailUrl = strDetailUrl.Replace("about:blank", JobUtils.GetConfigValue("urlHotels"));
-                    JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data");
+                    JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data", logger);
 
                     strRssItem = rssItem.Replace("#####2", strDetailUrl);
                     strRssItem = strRssItem.Replace("#####4", strTitle);
@@ -260,14 +279,14 @@ namespace JobAssembly
             strRssContent = strRssContent.Replace('"', '\'');
             strRssContent = "RSSData.Content = \"" + strRssContent + "\";";
 
-            JobUtils.SaveData(strRssContent, "hotels.rss");
+            JobUtils.SaveData(strRssContent, "hotels.rss", logger);
         }
 
         /// <summary>
         /// Retrieves and saves Tourism information
         /// </summary>
         /// <param name="urlTourism"></param>
-        private void GetTourism(string tourismUrl)
+        private void GetTourism(string tourismUrl, ILog logger)
         {
             HTMLDocument document = JobUtils.LoadDocument(tourismUrl);
 
@@ -317,8 +336,8 @@ namespace JobAssembly
                     if ((title == null) || (img == null)) continue;
                     
                     // Save Details content
-                    strDetailUrl = strDetailUrl.Replace("about:", JobUtils.GetConfigValue("sourceWebRoot"));
-                    JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data");
+                    strDetailUrl = strDetailUrl.Replace("about:blank", JobUtils.GetConfigValue("sourceWebRoot"));
+                    JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data", logger);
 
                     strRssItem = rssItem.Replace("#####2", strDetailUrl);
                     strRssItem = strRssItem.Replace("#####4", strTitle);
@@ -339,14 +358,14 @@ namespace JobAssembly
             strRssContent = strRssContent.Replace('"', '\'');
             strRssContent = "RSSData.Content = \"" + strRssContent + "\";";
 
-            JobUtils.SaveData(strRssContent, "tourism.rss");
+            JobUtils.SaveData(strRssContent, "tourism.rss", logger);
         }
 
         /// <summary>
         /// Retrieves and saves Events information
         /// </summary>
         /// <param name="urlEvents"></param>
-        private void GetEvents(string eventsUrl)
+        private void GetEvents(string eventsUrl, ILog logger)
         {
             HTMLDocument document = JobUtils.LoadDocument(eventsUrl);
 
@@ -381,8 +400,8 @@ namespace JobAssembly
                         strDetailID = strDetailUrl.Substring(infoPos, ampPos - infoPos);
 
                         // Save Details content
-                        strDetailUrl = strDetailUrl.Replace("about:", JobUtils.GetConfigValue("sourceWebRoot"));
-                        JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data");
+                        strDetailUrl = strDetailUrl.Replace("about:blank", JobUtils.GetConfigValue("sourceWebRoot"));
+                        JobUtils.SaveEventsDetailsContent(strDetailUrl, strDetailID + ".data", logger);
                     }
 
                     if ((title == null) || (date == null)) continue;
@@ -407,7 +426,47 @@ namespace JobAssembly
             strRssContent = strRssContent.Replace('"', '\'');
             strRssContent = "RSSData.Content = \"" + strRssContent + "\";";
 
-            JobUtils.SaveData(strRssContent, "events.rss");
+            JobUtils.SaveData(strRssContent, "events.rss", logger);
+        }
+
+        private void GetDTS(string urlDTS, ILog logger)
+        {
+            HTMLDocument document = JobUtils.LoadDocument(urlDTS);
+            if (document == null) return;
+
+            string strContent = "﻿RSSData.Detail = {{\"sunrise\":\"{0}\", \"sunset\":\"{1}\"}}";
+            
+            // Find original content placeholder
+            IHTMLElement contentTable = JobUtils.FindElement(document.body, "table[class=sun-data]");
+
+            if (contentTable == null) return;
+
+            // Iterate over table elements and get the content
+            int counter = 0;
+            string strSR = "", strSS = "";
+            foreach (IHTMLElement el in (IHTMLElementCollection)contentTable.all)
+            {
+                IHTMLElementCollection children = (IHTMLElementCollection)el.children;
+                if ((el.tagName.ToLower() == "td") && (el.outerHTML.IndexOf("class=sunshine") > 0) && (children.length == 1))
+                {
+                    if (counter == 0)
+                    {
+                        strSR = el.innerText;
+                    }
+                    else if (counter == 1)
+                    {
+                        strSS = el.innerText;
+                    }
+                    else break;
+
+                    counter++;
+                }
+            }
+
+            strContent = String.Format(strContent, strSR, strSS);
+
+            // Save the content
+            JobUtils.SaveData(strContent, "DTS.data", logger);
         }
 
         #endregion

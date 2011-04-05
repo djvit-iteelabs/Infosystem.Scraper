@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Drawing;
 using mshtml;
+using Common.Logging;
 
 namespace JobAssembly
 {
@@ -125,20 +126,22 @@ namespace JobAssembly
             return null;
         }
 
-        private static void SaveContent(string content, string filePath)
+        private static void SaveContent(string content, string filePath, ILog logger)
         {
             StreamWriter sw = new StreamWriter(filePath, false);
             sw.Write(content);
 
-            //close the file
+            logger.Info("Saved (" + content.Length + " bytes) of " + filePath);
+
+            // Close the file
             sw.Close();
         }
 
-        public static void SaveData(string content, string fileName)
+        public static void SaveData(string content, string fileName, ILog logger)
         {
             string filePath = JobUtils.GetConfigValue("dataTargetDir") + fileName;
 
-            SaveContent(content, filePath);
+            SaveContent(content, filePath, logger);
         }
 
         public static void SaveImage(string url, string fileName)
@@ -282,12 +285,13 @@ namespace JobAssembly
             }
         }
 
-        public static void SaveDetailsContent(string strDetailUrl, string fileName)
+        public static void SaveDetailsContent(string strDetailUrl, string fileName, ILog logger)
         {
             HTMLDocument docDetails = LoadDocument(strDetailUrl);
 
             if (docDetails != null)
-            { 
+            {
+
                 // Get the detasil content and cleanup off the not needed elements
                 IHTMLElement contentBox = docDetails.getElementById("contentboxsub");
                 IHTMLElement cleaner = FindElement(contentBox, "div table");
@@ -311,11 +315,11 @@ namespace JobAssembly
                 content = content.Replace('\n', ' ');
 
                 // Save the details content
-                SaveData("﻿RSSData.Detail = \"" + content + "\";", fileName);
+                SaveData("﻿RSSData.Detail = \"" + content + "\";", fileName, logger);
             }
         }
 
-        public static void SaveEventsDetailsContent(string strDetailUrl, string fileName)
+        public static void SaveEventsDetailsContent(string strDetailUrl, string fileName, ILog logger)
         {
             HTMLDocument docDetails = LoadDocument(strDetailUrl);
 
@@ -342,7 +346,7 @@ namespace JobAssembly
                 content = content.Replace('\n', ' ');
 
                 // Save the details content
-                SaveData("﻿RSSData.Detail = \"" + content + "\";", fileName);
+                SaveData("﻿RSSData.Detail = \"" + content + "\";", fileName, logger);
             }
         }
 
